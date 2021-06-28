@@ -1,5 +1,6 @@
 module WebMin
 
+using Dates
 using HTTP
 using JSON
 using Sockets
@@ -19,6 +20,7 @@ include("websockets.jl")
 include("wsroutes.jl")
 include("router.jl")
 include("cookies.jl")
+include("qol.jl")
 
 include("special.jl")
 

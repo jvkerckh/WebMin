@@ -13,6 +13,7 @@ config = Dict{Symbol,Any}(
     :websocket => nothing,
     :wsroute_list => Dict{String,Function}()
 )
+workingmemory = Dict{Int,Any}()
 
 
 function clearroutes()
@@ -76,6 +77,7 @@ function serverdown()
     config[:server] = nothing
     config[:server_listener] = nothing
     config[:websocket_listener] = nothing
+    empty!(workingmemory)
 end  # serverdown()
 
 
