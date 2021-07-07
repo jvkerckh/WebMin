@@ -13,7 +13,7 @@ config = Dict{Symbol,Any}(
     :websocket => nothing,
     :wsroute_list => Dict{String,Function}()
 )
-workingmemory = Dict{Int,Any}()
+workingmemory = Dict{Int,Dict{Symbol,Any}}()
 
 
 function clearroutes()

@@ -28,11 +28,19 @@ end  # injectResponsiveness()
 ```
 servefile( fname::AbstractString )
 ```
-This function reads the file with name `fname` and serves it as a status 200 HTTP response. The function does not check if the file exists!
+
+```
+servefile( fname::AbstractString
+    ctype::AbstractString )
+```
+This function reads the file with name `fname` and serves it as a status 200 HTTP response. If the argument `ctype` is provided, the content type of the file is set to this. The function does not check if the file exists!
 """
 servefile( fname::AbstractString ) = Response( 200,
     ["Content-Type" => get( extensions, splitext(fname)[2], "text/plain" )],
     body=read(fname) )
+
+servefile( fname::AbstractString, ctype::AbstractString ) =
+    Response( 200, ["Content-Type" => ctype], body=read(fname) )
 
 
 """

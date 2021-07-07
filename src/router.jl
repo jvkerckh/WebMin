@@ -150,8 +150,8 @@ Base.getindex( req::Request, field::AbstractString ) = postpayload( req, field )
 
 
 function processinput( indata::AbstractString )
-    intmp = split( indata, "\r\n" )[[2,4]]
-    par = split( intmp[1], '=' )[2][2:(end-1)]
+    intmp = split( indata, "\r\n" )[[2,end-1]]
+    par = split( split( intmp[1], "; " )[2], '=' )[2][2:(end-1)]
     Symbol(par) => intmp[2] |> parsevalue
 end  # processinput( indata )
 
@@ -189,6 +189,14 @@ function processfunction( f::Function, stream::Bool )
         try
             return f(req)
         catch exc
+            @warn( string( "An error has occurred in HTTP Request route \"", req.target, "\". See the stacktrace below for additional information." ) )
+
+            for (ex2, bt) in Base.catch_stack()
+                showerror( stderr, ex2, bt )
+                println(stderr)
+                # Better logging?
+            end  # for (ex2, bt) in Base.catch_stack()
+
             return Response( 500, body=errorpage(exc) )
         end  # try
     end  # excenf

@@ -1,6 +1,9 @@
 export wsroute, injectWebsocket, sendMessage
 
 
+registeredSockets = Dict{String, Vector{WebSocket}}()
+
+
 """
 ```
 wsroute( f::Function,
@@ -67,11 +70,37 @@ This function sends `msg` over the websocket `ws`. The latter version transforms
 """
 sendMessage( ws::WebSocket, msg::AbstractString ) = write( ws, msg )
 sendMessage( ws::WebSocket, msg::Dict ) =
-    isempty(msg) || write( ws, msg |> json )
+    isempty(msg) || sendMessage( ws, msg |> json )
+
+
+"""
+```
+broadcastMessage( wsroute::AbstractString,
+    msg::AbstractString )
+
+broadcastMessage( wsroute::AbstractString,
+    msg::Dict )
+```
+This function broadcasts `msg` to all currently active websockets associated with `wsroute`. The latter version transforms the dictionary to a JSON string prior to sending the message.
+"""
+function broadcastMessage( wsroute::AbstractString, msg::AbstractString )
+    haskey( registeredSockets, wsroute ) || return
+    sendmessage.( registeredSockets[wsroute], Ref(msg) )
+end  # broadcastMessage( wsroute, msg )
+
+broadcastMessage( wsroute::AbstractString, msg::Dict ) =
+    isempty(msg) || broadcastMessage( wsroute, msg |> json )
 
 
 function upgradeStream( hs::HTTPStream, f::Function )
     HTTP.WebSockets.upgrade( hs; binary=false ) do ws::WebSocket
+        # Register websocket.
+        target = hs.message.target
+        haskey( registeredSockets, target ) ||
+            (registeredSockets[target] = WebSocket[])
+        push!( registeredSockets[target], ws )
+
+        # Handle websocket communication.
         while !eof(ws)
             try
                 if isopen(ws)
@@ -82,16 +111,21 @@ function upgradeStream( hs::HTTPStream, f::Function )
                     #   cause errors otherwise.
                 end  # if isopen(ws)
             catch exc
-                if isopen(ws)
-                    if !(exc isa HTTP.WebSockets.WebSocketError) || (exc.status != 0x03e9)
-                        rethrow(exc)
-                    end  # if !(exc isa WebSocketError) || ...
-                    # No need to report errors caused by closing websockets.
+                (exc isa HTTP.WebSockets.WebSocketError) && (exc.status == 0x03e9) && continue
 
-                    write( ws, string(exc) )
-                end  # if isopen(ws)
+                @warn( string( "An error has occurred in a websocket response on route \"", ws.request.target, "\". See the stacktrace below for additional information." ) )
+
+                for (ex2, bt) in Base.catch_stack()
+                    showerror( stderr, ex2, bt )
+                    println(stderr)
+                    # Better logging?
+                end  # for (ex2, bt) in Base.catch_stack()
             end  # catch exc
         end  # while !eof(ws)
+
+        # Deregister websocket.
+        deleteat!( registeredSockets[target],
+            findfirst(registeredSockets[target] .=== Ref(ws)) )
 
         ws.txclosed = true
         # This line prevents errors being thrown by Julia when the HTTP.WebSockets.close(ws) function is invoked.
