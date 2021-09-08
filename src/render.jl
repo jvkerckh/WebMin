@@ -17,7 +17,7 @@ This function injects the JavaScript that permits straightforward updating of (n
 """
 function injectResponsiveness()
     route( "/jscript.js", stream=true ) do hs::HTTPStream
-        streamfile( hs, joinpath( Webmin |> pathof |> dirname,
+        streamfile( hs, joinpath( WebMin |> pathof |> dirname,
             "../res/jscripts.js" ) |> normpath )
     end  # route( "/jscript.js", stream=true ) do hs
     
