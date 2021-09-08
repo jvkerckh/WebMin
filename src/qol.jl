@@ -5,7 +5,12 @@ export  respond,
         initMessage!,
         changeInnerHTML!,
         removeElement!,
-        changeElementAttribute!
+        changeElementAttribute!,
+        setElementStyle!,
+        removeElementStyle!,
+        setElementClass!,
+        addElementClass!,
+        removeElementClass!
 
 
 """
@@ -132,3 +137,73 @@ function changeElementAttribute!( msg::Dict{String,Dict{String,Any}},
     haskey( msg, id ) || (msg[id] = Dict{String,Any}() )
     msg[id][attr] = val
 end  # changeElementAttribute!( msg, id, attr, val )
+
+
+"""
+```
+setElementStyle!( msg::Dict{String,Dict{String,Any}},
+    id::AbstractString,
+    attr::AbstractString,
+    val )
+```
+This function adds an instruction to `msg` to change the value of style property `attr` of the HTML element with `id` to `val`.
+"""
+function setElementStyle!( msg::Dict{String,Dict{String,Any}},
+    id::AbstractString, attr::AbstractString, val )
+    haskey( msg, id ) || (msg[id] = Dict{String,Any}() )
+    haskey( msg[id], "style" ) || (msg[id]["style"] = Dict{String,Any}() )
+    msg[id]["style"][attr] = val
+end  # setElementStyle!( msg, id, attr, val )
+
+
+"""
+```
+removeElementStyle!( msg::Dict{String,Dict{String,Any}},
+    id::AbstractString,
+    attr::AbstractString )
+```
+This function adds an instruction to `msg` to remove the style property `attr` from the HTML element with `id`.
+"""
+removeElementStyle!( msg::Dict{String,Dict{String,Any}},
+    id::AbstractString, attr::AbstractString ) =
+    setElementStyle!( msg, id, attr, "" )
+
+
+"""
+```
+setElementClass!( msg::Dict{String,Dict{String,Any}},
+    id::AbstractString,
+    class::AbstractString,
+    active::Bool )
+```
+This function adds an instruction to `msg` to set the flag of `class` of the HTML element with `id` to `active`.
+"""
+function setElementClass!( msg::Dict{String,Dict{String,Any}},
+    id::AbstractString, class::AbstractString, active::Bool )
+    haskey( msg, id ) || (msg[id] = Dict{String,Any}() )
+    haskey( msg[id], "class" ) || (msg[id]["class"] = Dict{String,Any}() )
+    msg[id]["class"][class] = active
+end  # setElementClass!( msg, id, class, active )
+
+
+"""
+```
+addElementClass!( msg::Dict{String,Dict{String,Any}},
+    id::AbstractString,
+    class::AbstractString )
+```
+This function adds an instruction to `msg` to add the class `class` to the HTML element with `id`.
+"""
+addElementClass!( msg::Dict{String,Dict{String,Any}}, id::AbstractString,
+    class::AbstractString ) = setElementClass!( msg, id, class, true )
+
+"""
+```
+removeElementClass!( msg::Dict{String,Dict{String,Any}},
+    id::AbstractString,
+    class::AbstractString )
+```
+This function adds an instruction to `msg` to remove the class `class` from the HTML element with `id`.
+"""
+removeElementClass!( msg::Dict{String,Dict{String,Any}}, id::AbstractString,
+    class::AbstractString ) = setElementClass!( msg, id, class, false )

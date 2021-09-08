@@ -1,3 +1,5 @@
+__precompile__()
+
 module WebMin
 
 using Dates
@@ -23,5 +25,7 @@ include("cookies.jl")
 include("qol.jl")
 
 include("special.jl")
+
+include("halfmoon/halfmoon.jl")
 
 end  # module WebMin

@@ -137,22 +137,27 @@ function websocketJS( name::AbstractString,
     path::Union{AbstractString, Nothing}=nothing )
     wspath = string( "'ws://' + ", isnothing(path) ? "window.location.hostname + ':' + $(config[:websocket_port]) + '/'" : "window.location.host + '$path'" )
 
-    script("""var $name = new WebSocket($wspath);
+    route("/wsfunc.js") do req::Request
+        Response( 200, ["Content-Type" => "text/javascript"],
+            body="""var $name = new WebSocket($wspath);
 
-    $name.onopen = function (event) {
-        console.log('Websocket connection to', $name.url, 'opened.');
-    }
-
-    $name.onclose = function (event) {
-        console.log('Websocket connection to', $name.url, 'closed.');
-    }
+            $name.onopen = function (event) {
+                console.log('Websocket connection to', $name.url, 'opened.');
+            }
+        
+            $name.onclose = function (event) {
+                console.log('Websocket connection to', $name.url, 'closed.');
+            }
+            
+            $name.onmessage = function (event) {
+                var payload = event.data;
+        
+                if (payload.startsWith('{') && payload.endsWith('}')) {
+                    parse_response(JSON.parse(payload));
+                } else
+                    console.log(event.data);
+            }""" )
+    end  # route("/wsfunc.js") do req
     
-    $name.onmessage = function (event) {
-        var payload = event.data;
-
-        if (payload.startsWith('{') && payload.endsWith('}')) {
-            parse_response(JSON.parse(payload));
-        } else
-            console.log(event.data);
-        }""")
+    script( src="/wsfunc.js" )
 end  # websocketJS( name, path )

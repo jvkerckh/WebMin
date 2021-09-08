@@ -28,16 +28,32 @@ const VOID_TAGS = [
 ]
 
 
-export doc
+export doc, fa
+
+
 function doc( body::AbstractString )
     string( "<!DOCTYPE html>\n", body )
 end  # doc( body )
 
 
+function fa( icon::AbstractString; class::AbstractString="", kwargs... )
+    faclass = string( "fa", " fa-", icon, isempty(class) ? "" : " ", class )
+    i( class=faclass; kwargs... )
+end  # fa( icon; fa5, class, kwargs... )
+
+
 function process_pars( pars::Dict{String,T},
     kwargs::Vector{Pair{Symbol,Any}} ) where T
+    kwargs = Base.map(kwargs) do attrval
+        attr = attrval[1] |> string
+        attr = replace( attr, "__" => "-" )
+        attr = replace( attr,  "!!" => ":" )
+        attr = replace( attr, "!" => "." )
+        Pair{String,Any}( attr, attrval[2] )
+    end # Base.map(kwargs) do attrval
+
     for par in keys(pars)
-        push!( kwargs, Symbol(pars[par][1]) => pars[par][2] )
+        push!( kwargs, par => pars[par] )
     end  # for par in keys(pars)
 
     filter!( kwarg -> !isnothing(kwarg[2]), kwargs )
@@ -58,23 +74,11 @@ end  # void_tag( tag, pars, kwargs )
 
 
 function register_normal_tag( tag::Symbol )
-    Core.eval( @__MODULE__, """function $tag( ; kwargs... ) where T
-        normal_tag( "$tag", "", Dict{String,Any}(), Pair{Symbol,Any}[kwargs...] )
-    end""" |> Meta.parse )
-
-    Core.eval( @__MODULE__, """function $tag( pars::Dict{String,T}; kwargs... ) where T
-        normal_tag( "$tag", "", pars, Pair{Symbol,Any}[kwargs...] )
-    end""" |> Meta.parse )
-
-    Core.eval( @__MODULE__, """function $tag( inner; kwargs... ) where T
-        normal_tag( "$tag", inner, Dict{String,Any}(), Pair{Symbol,Any}[kwargs...] )
-    end""" |> Meta.parse )
-
-    Core.eval( @__MODULE__, """function $tag( inner, pars::Dict{String,T}; kwargs... ) where T
+    Core.eval( @__MODULE__, """function $tag( inner="", pars::Dict{String,T}=Dict{String,Any}(); kwargs... ) where T
         normal_tag( "$tag", inner, pars, Pair{Symbol,Any}[kwargs...] )
     end""" |> Meta.parse )
 
-    Core.eval( @__MODULE__, """function $tag( pars::Dict{String,T}, inner; kwargs... ) where T
+    Core.eval( @__MODULE__, """function $tag( pars::Dict{String,T}, inner=""; kwargs... ) where T
         normal_tag( "$tag", inner, pars, Pair{Symbol,Any}[kwargs...] )
     end""" |> Meta.parse )
 
@@ -83,11 +87,7 @@ end  # register_normal_tag( tag )
 
 
 function register_void_tag( tag::Symbol )
-    Core.eval( @__MODULE__, """function $tag( ; kwargs... ) where T
-        void_tag( "$tag", Dict{String,Any}(), Pair{Symbol,Any}[kwargs...] )
-    end""" |> Meta.parse )
-
-    Core.eval( @__MODULE__, """function $tag( pars::Dict{String,T}; kwargs... ) where T
+    Core.eval( @__MODULE__, """function $tag( pars::Dict{String,T}=Dict{String,Any}(); kwargs... ) where T
         void_tag( "$tag", pars, Pair{Symbol,Any}[kwargs...] )
     end""" |> Meta.parse )
 

@@ -57,7 +57,7 @@ function parse_response( payload ) {
                 else
                     docel.remove(); 
             }
-            else if (ttag == 'style') {
+            else if ((ttag == 'style') && ('object' == typeof responseData['style'])) {
                 styleData = responseData['style'];
 
                 for (stag in styleData) {
@@ -72,6 +72,17 @@ function parse_response( payload ) {
                         docel.style.setProperty( stag, styleData[stag] );
                     else
                         docel.style.setProperty( stag, sdata.substr( 0, iind ), 'important' );
+                }
+            }
+            else if ((ttag == 'class') && ('object' == typeof responseData['class'])) {
+                classData = responseData['class'];
+
+                for (ctag in classData) {
+                    if (classData[ctag])
+                        docel.classList.add(ctag);
+                    else {
+                        docel.classList.remove(ctag);
+                    }
                 }
             }
             else if (ttag != 'type')
