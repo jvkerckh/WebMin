@@ -17,7 +17,9 @@ This function injects the JavaScript that permits straightforward updating of (n
 """
 function injectResponsiveness()
     route( "/jscript.js", stream=true ) do hs::HTTPStream
-        streamfile( hs, "res/jscripts.js" )
+        pathname = joinpath( Base.source_dir(), "../res/jscripts.js" )
+        ispath(pathname) || (pathname = "res/jscripts.js")  # Local tests.
+        streamfile( hs, pathname )
     end  # route( "/jscript.js", stream=true ) do hs
     
     script( src="/jscript.js" )

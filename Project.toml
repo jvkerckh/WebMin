@@ -1,7 +1,7 @@
 name = "WebMin"
 uuid = "970e17dd-e7cf-4d51-a1c9-6e25c8d5994c"
 authors = ["Johan Van Kerckhoven <johan.vankerckhoven@gmail.com>"]
-version = "0.1.2"
+version = "0.2.2"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
