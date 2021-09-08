@@ -16,6 +16,13 @@ injectResponsiveness()
 This function injects the JavaScript that permits straightforward updating of (named) parts of the webpage.
 """
 function injectResponsiveness()
+    pathnames = joinpath.( [Base.source_dir(), Base.source_path() |> dirname, pwd(), pathof(WebMin) |> dirname], "../res/jscripts.js" )
+    append!( pathnames, ["res/jscripts.js", "/res/jscripts.js"] )
+    pathnames = normpath.(pathnames)
+    for pname in pathnames
+        println( pname, ispath(pname) ? "" : " not", " okay" )
+    end
+
     route( "/jscript.js", stream=true ) do hs::HTTPStream
         pathname = joinpath( Base.source_dir(), "../res/jscripts.js" )
         ispath(pathname) || (pathname = "res/jscripts.js")  # Local tests.
