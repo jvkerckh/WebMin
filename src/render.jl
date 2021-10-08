@@ -1,4 +1,4 @@
-export injectResponsiveness, servefile, streamfile
+export injectResponsiveness, servefile, streamfile, openstream, closestream
 
 
 const extensions = Dict(
@@ -59,8 +59,7 @@ This function reads the file with name `fname` and writes it to the HTTP stream 
 """
 function streamfile( hs::HTTPStream, fname::AbstractString,
     ctype::AbstractString )
-    HTTP.setheader( hs, "Content-Type" => ctype )
-    startwrite(hs)
+    openstream( hs, ctype )
   
     open(fname) do io
       while !eof(io)
@@ -68,8 +67,18 @@ function streamfile( hs::HTTPStream, fname::AbstractString,
       end  # while !eof(io)
     end  # open(fname) do io
   
-    closewrite(hs)  
+    closestream(hs)  
 end  # streamfile( hs, fname, ctype )
 
 streamfile( hs::HTTPStream, fname::AbstractString ) =
     streamfile( hs, fname, get( extensions, splitext(fname)[2], "text/plain" ) )
+
+
+function openstream( hs::HTTPStream, ctype::AbstractString )
+    HTTP.setheader( hs, "Content-Type" => ctype )
+    startwrite(hs)
+end  # openstream( hs, ctype )
+
+openstream( hs::HTTPStream ) = openstream( hs, "text/plain" )
+
+closestream( hs::HTTPStream ) = closewrite(hs)

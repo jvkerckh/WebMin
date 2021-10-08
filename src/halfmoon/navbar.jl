@@ -1,38 +1,39 @@
-export  navbar,
-        navbarcontent,
-        navbarbrand,
-        navbartext,
-        navbarnav,
-        navitem,
-        navlink
+fns = [
+    "Navbar",
+    "NavbarContent",
+    "NavbarBrand",
+    "NavbarText",
+    "NavbarNav",
+    "NavItem",
+    "NavLink"
+]
+
+Core.eval( @__MODULE__,
+    """export $(join( vcat(fns, lowercase.(fns)), ", "))""" |> Meta.parse )
 
 
-navbar( inner=""; class::AbstractString="", kwargs... ) =
-    processhmblock( inner, "navbar", "nav", class; kwargs... )
+makeBasicComponent( "navbar", "nav", fixedtag=true )
+makeBasicComponent( "navbar-content", "div" )
+makeBasicComponent( "navbar-brand", "div" )
+makeBasicComponent( "navbar-text", "span" )
+makeBasicComponent( "navbar-nav", "ul" )
 
-navbarcontent( inner=""; tag::AbstractString="div", class::AbstractString="",
-    kwargs... ) =
-    processhmblock( inner, "navbar-content", tag, class; kwargs... )
+function NavItem( inner=""; tag::AbstractString="li", id="", active::Bool=false,
+    classes::Vector{S}=String[], class::AbstractString="",
+    styles::Dict{String, A1}=Dict{String, Any}(),
+    attrs::Dict{String, A2}=Dict{String, Any}(),
+    kwargs... ) where {S <: AbstractString, A1, A2}
+    niclass = ["nav-item"]
+    active && push!( niclass, "active" )
+    Tag( tag, inner, id=id, classes=vcat( niclass, classes ), class=class,
+        styles=styles, attrs=attrs; kwargs... )
+end  # NavItem( inner; tag, id, active, classes, class, styles, attrs,
+     #   kwargs... )
 
-navbarbrand( inner=""; tag::AbstractString="div", class::AbstractString="",
-    kwargs... ) =
-    processhmblock( inner, "navbar-brand", tag, class; kwargs... )
-
-navbartext( inner=""; tag::AbstractString="span", class::AbstractString="",
-    kwargs... ) =
-    processhmblock( inner, "navbar-text", tag, class; kwargs... )
-
-navbarnav( inner=""; tag::AbstractString="ul", class::AbstractString="",
-    kwargs... ) =
-    processhmblock( inner, "navbar-nav", tag, class; kwargs... )
-
-
-function navitem( inner=""; tag::AbstractString="li", class::AbstractString="",
-    active::Bool=false, kwargs... )
-    processhmblock( inner, string( "nav-item", active ? " active" : "" ), tag, class; kwargs... )
-end  # navitem( inner; tag, class, active, kwargs... )
+makeBasicComponent( "nav-link", "a" )
 
 
-navlink( inner=""; tag::AbstractString="a", class::AbstractString="",
-    kwargs... ) =
-    processhmblock( inner, "nav-link", tag, class; kwargs... )
+for fn in fns
+    # Core.eval( @__MODULE__, """$(lowercase(fn)) = doc ∘ $fn""" |> Meta.parse )
+    Core.eval( @__MODULE__, """$(lowercase(fn))( x...; kwargs... ) = $fn( x...; kwargs... ) |> doc""" |> Meta.parse )
+end  # for fn in fns

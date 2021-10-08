@@ -1,41 +1,42 @@
-export  sidebar,
-        sidebarmenu,
-        sidebarbrand,
-        sidebartitle,
-        sidebarlink,
-        sidebardivider,
-        sidebarcontent,
-        sidebaricon
+fns = [
+    "Sidebar",
+    "SidebarMenu",
+    "SidebarBrand",
+    "SidebarTitle",
+    "SidebarLink",
+    "SidebarDivider",
+    "SidebarContent",
+    "SidebarIcon"
+]
+
+Core.eval( @__MODULE__,
+    """export $(join( vcat(fns, lowercase.(fns)), ", "))""" |> Meta.parse )
 
 
-sidebar( inner=""; class::AbstractString="", kwargs... ) =
-    processhmblock( inner, "sidebar", "div", class; kwargs... )
+makeBasicComponent( "sidebar", "div" )
+makeBasicComponent( "sidebar-menu", "div" )
+makeBasicComponent( "sidebar-brand", "div" )
+makeBasicComponent( "sidebar-title", "div" )
 
-sidebarmenu( inner=""; tag::AbstractString="div", class::AbstractString="",
-    kwargs... ) = processhmblock( inner, "sidebar-menu", tag, class; kwargs... )
-    
-sidebarbrand( inner=""; tag::AbstractString="div", class::AbstractString="",
-    kwargs... ) =
-    processhmblock( inner, "sidebar-brand", tag, class; kwargs... )
+function SidebarLink( inner=""; tag::AbstractString="div", id="",
+    active::Bool=false, withicon::Bool=false, classes::Vector{S}=String[],
+    class::AbstractString="", styles::Dict{String, A1}=Dict{String, Any}(),
+    attrs::Dict{String, A2}=Dict{String, Any}(),
+    kwargs... ) where {S <: AbstractString, A1, A2}
+    sblclass = ["sidebar-link"]
+    withicon && push!( sblclass, "sidebar-link-with-icon" )
+    active && push!( sblclass, "active" )
+    Tag( tag, inner, id=id, classes=vcat( sblclass, classes ), class=class,
+        styles=styles, attrs=attrs; kwargs... )
+end  # SidebarLink( inner; tag, id, active, withicon, classes, class, styles,
+     #   attrs, kwargs... )
 
-sidebartitle( inner=""; tag::AbstractString="div", class::AbstractString="",
-    kwargs... ) =
-    processhmblock( inner, "sidebar-title", tag, class; kwargs... )
+makeBasicComponent( "sidebar-divider", "div", noinner=true )
+makeBasicComponent( "sidebar-content", "div" )
+makeBasicComponent( "sidebar-icon", "span" )
 
 
-function sidebarlink( inner=""; tag::AbstractString="div",
-    class::AbstractString="", active::Bool=false, withicon::Bool=false,
-    kwargs... )
-    processhmblock( inner, string( "sidebar-link", withicon ? " sidebar-link-with-icon" : "", active ? " active" : "" ), tag, class; kwargs... )
-end  # sidebarlink( inner; tag, class, active, withicon, kwargs... )
-
-
-sidebardivider( ; tag::AbstractString="div", class::AbstractString="",
-    kwargs... ) = processhmblock( "", "sidebar-divider", tag, class; kwargs... )
-
-sidebarcontent( inner=""; tag::AbstractString="div", class::AbstractString="",
-    kwargs... ) =
-    processhmblock( inner, "sidebar-content", tag, class; kwargs... )
-
-sidebaricon( inner=""; tag::AbstractString="span", class::AbstractString="",
-    kwargs... ) = processhmblock( inner, "sidebar-icon", tag, class; kwargs... )
+for fn in fns
+    # Core.eval( @__MODULE__, """$(lowercase(fn)) = doc ∘ $fn""" |> Meta.parse )
+    Core.eval( @__MODULE__, """$(lowercase(fn))( x...; kwargs... ) = $fn( x...; kwargs... ) |> doc""" |> Meta.parse )
+end  # for fn in fns

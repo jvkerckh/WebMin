@@ -36,7 +36,7 @@ function setCustomHM!( chm::Dict{String,Dict{String,String}},
     haskey( chm, scope ) || return
     delete!( chm[scope], varname )
     isempty( chm[scope] ) && delete!( chm, scope )
-end  # setCustomHM( chm, component, variable, value; scope, lightdark, state )
+end  # setCustomHM!( chm, component, variable, value; scope, lightdark, state )
 
 
 function generateCustomHMCSS( chm::Dict{String,Dict{String,String}},

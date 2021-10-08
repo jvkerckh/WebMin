@@ -1,88 +1,115 @@
-export  formcontrol, formgroup, formrow, formtext, invalidfeedback, forminline,
-        customcontrol, customcheckbox, customradio, customswitch, customfile,
-        inputgroup, inputgroupprepend, inputgroupappend, inputgrouptext
+fns = [
+    "FormControl", "FormGroup", "FormRow", "FormText", "InvalidFeedback",
+    "FormInline",
+    "CustomControl", "CustomCheckbox", "CustomRadio", "CustomSwitch",
+    "CustomFile",
+    "InputGroup", "InputGroupPrepend", "InputGroupAppend", "InputGroupText"
+]
+
+Core.eval( @__MODULE__,
+    """export $(join( vcat(fns, lowercase.(fns)), ", "))""" |> Meta.parse )
 
 
-function formcontrol( inner=""; tag::AbstractString="input",
-    fcsize::Symbol=:default, required::Bool=false, invalid::Bool=false,
-    class::AbstractString="", kwargs... )
+function FormControl( inner=""; tag::AbstractString="input", id="",
+    size::Symbol=:default, required::Bool=false, invalid::Bool=false,
+    classes::Vector{S}=String[], class::AbstractString="",
+    styles::Dict{String, A1}=Dict{String, Any}(),
+    attrs::Dict{String, A2}=Dict{String, Any}(),
+    kwargs... ) where {S <: AbstractString, A1, A2}
     fcclass = ["form-control"]
-    fcsize ∈ [:lg, :sm] && push!( fcclass, "form-control-$fcsize" )
+    size ∈ [:lg, :sm] && push!( fcclass, "form-control-$size" )
     invalid && push!( fcclass, "is-invalid" )
-    processhmblock( inner, join( fcclass, " " ), tag, class, required=required ? "required" : nothing; kwargs... )
-end  # formcontrol( inner; tag, fcsize, required, class, kwargs... )
-  
-  
-function formgroup( inner=""; tag::AbstractString="div", invalid::Bool=false,
-    class::AbstractString="", kwargs... )
+    Tag( tag, inner, id=id, classes=vcat( fcclass, classes ), class=class,
+        styles=styles, attrs=attrs, required=required ? "required" : nothing;
+        kwargs... )
+end  # FormControl( inner; tag, id, size, required, invalid, classes, class,
+     #   styles, attrs, kwargs... )
+
+
+function FormGroup( inner=""; tag::AbstractString="div", id="",
+    invalid::Bool=false, classes::Vector{S}=String[], class::AbstractString="",
+    styles::Dict{String, A1}=Dict{String, Any}(),
+    attrs::Dict{String, A2}=Dict{String, Any}(),
+    kwargs... ) where {S <: AbstractString, A1, A2}
     fgclass = ["form-group"]
     invalid && push!( fgclass, "is-invalid" )
-    processhmblock( inner, join( fgclass, " " ), tag, class; kwargs... )
-end  # formgroup( inner; tag, invalid, class, kwargs... )
-  
-  
-formrow( inner=""; tag::AbstractString="div", class::AbstractString="",
-    kwargs... ) = processhmblock( inner, "form-row", tag, class; kwargs... )
-  
-formtext( inner=""; tag::AbstractString="div", class::AbstractString="",
-    kwargs... ) = processhmblock( inner, "form-text", tag, class; kwargs... )
-  
-invalidfeedback( inner=""; tag::AbstractString="div", class::AbstractString="",
-    kwargs... ) =
-    processhmblock( inner, "invalid-feedback", tag, class; kwargs... )
-  
-forminline( inner=""; tag::AbstractString="form", fisize::Symbol=:default,
-    class::AbstractString="", kwargs... ) =
-    processhmblock( inner, string( "form-inline", fisize ∈ [:sm, :md, :lg, :xl] ? "-$fisize" : "" ), tag, class; kwargs... )
-  
-customcontrol( inner=""; tag::AbstractString="div", class::AbstractString="",
-    kwargs... ) =
-    processhmblock( inner, "custom-control", tag, class; kwargs... )
+    Tag( tag, inner, id=id, classes=vcat( fgclass, classes ), class=class,
+        styles=styles, attrs=attrs; kwargs... )
+end  # FormGroup( inner; tag, id, invalid, classes, class, styles, attrs,
+     #   kwargs... )
 
+makeBasicComponent( "form-row", "div" )
+makeBasicComponent( "form-text", "div" )
+makeBasicComponent( "invalid-feedback", "div" )
+makeBasicComponent( "form-inline", "form" )
+makeBasicComponent( "custom-control", "div" )
 
-function customcheckbox( inner=""; tag::AbstractString="div",
-    class::AbstractString="", hstack::Bool=false, kwargs... )
+function CustomCheckbox( inner=""; tag::AbstractString="div", id="",
+    hstack::Bool=false, classes::Vector{S}=String[], class::AbstractString="",
+    styles::Dict{String, A1}=Dict{String, Any}(),
+    attrs::Dict{String, A2}=Dict{String, Any}(),
+    kwargs... ) where {S <: AbstractString, A1, A2}
     ccclass = ["custom-checkbox"]
     hstack && push!( ccclass, "d-inline-block" )
-    processhmblock( inner, join( ccclass, " " ), tag, class; kwargs... )
-end  # customcheckbox( inner; tag, class, hstack, kwargs... )
+    Tag( tag, inner, id=id, classes=vcat( ccclass, classes ), class=class,
+        styles=styles, attrs=attrs; kwargs... )
+end  # CustomCheckbox( inner; tag, id, hstack, classes, class, styles, attrs,
+     #   kwargs... )
 
 
-function customradio( inner=""; tag::AbstractString="div",
-    class::AbstractString="", hstack::Bool=false, kwargs... )
-    ccclass = ["custom-radio"]
-    hstack && push!( ccclass, "d-inline-block" )
-    processhmblock( inner, join( ccclass, " " ), tag, class; kwargs... )
-end  # customradio( inner; tag, class, hstack, kwargs... )
+function CustomRadio( inner=""; tag::AbstractString="div", id="",
+    hstack::Bool=false, classes::Vector{S}=String[], class::AbstractString="",
+    styles::Dict{String, A1}=Dict{String, Any}(),
+    attrs::Dict{String, A2}=Dict{String, Any}(),
+    kwargs... ) where {S <: AbstractString, A1, A2}
+    crclass = ["custom-radio"]
+    hstack && push!( crclass, "d-inline-block" )
+    Tag( tag, inner, id=id, classes=vcat( crclass, classes ), class=class,
+        styles=styles, attrs=attrs; kwargs... )
+end  # CustomRadio( inner; tag, id, hstack, classes, class, styles, attrs,
+     #   kwargs... )
 
 
-function customswitch( inner=""; tag::AbstractString="div",
-    class::AbstractString="", hstack::Bool=false, kwargs... )
-    ccclass = ["custom-switch"]
-    hstack && push!( ccclass, "d-inline-block" )
-    processhmblock( inner, join( ccclass, " " ), tag, class; kwargs... )
-end  # customswitch( inner; tag, class, hstack, kwargs... )
+function CustomSwitch( inner=""; tag::AbstractString="div", id="",
+    hstack::Bool=false, classes::Vector{S}=String[], class::AbstractString="",
+    styles::Dict{String, A1}=Dict{String, Any}(),
+    attrs::Dict{String, A2}=Dict{String, Any}(),
+    kwargs... ) where {S <: AbstractString, A1, A2}
+    csclass = ["custom-switch"]
+    hstack && push!( csclass, "d-inline-block" )
+    Tag( tag, inner, id=id, classes=vcat( csclass, classes ), class=class,
+        styles=styles, attrs=attrs; kwargs... )
+end  # CustomSwitch( inner; tag, id, hstack, classes, class, styles, attrs,
+     #   kwargs... )
+
+CustomFile( inner=""; tag::AbstractString="div", id="", multiple::Bool=false,
+    classes::Vector{S}=String[], class::AbstractString="",
+    styles::Dict{String, A1}=Dict{String, Any}(),
+    attrs::Dict{String, A2}=Dict{String, Any}(),
+    kwargs... ) where {S <: AbstractString, A1, A2} =
+    Tag( tag, inner, id=id, classes=vcat( "custom-file", classes ),
+        class=class, styles=styles, attrs=attrs,
+        multiple=multiple ? "multiple" : nothing; kwargs... )
 
 
-customfile( inner=""; tag::AbstractString="div", class::AbstractString="",
-    multiple::Bool=false, kwargs... ) =
-    processhmblock( inner, "custom-file", tag, class, multiple=multiple ? "multiple" : nothing; kwargs... )
-
-function inputgroup( inner=""; tag::AbstractString="div",
-    igsize::Symbol=:default, class::AbstractString="", kwargs... )
+function InputGroup( inner=""; tag::AbstractString="div", id="",
+    size::Symbol=:default, classes::Vector{S}=String[],
+    class::AbstractString="", styles::Dict{String, A1}=Dict{String, Any}(),
+    attrs::Dict{String, A2}=Dict{String, Any}(),
+    kwargs... ) where {S <: AbstractString, A1, A2}
     igclass = ["input-group"]
-    igsize ∈ [:sm, :lg] && push!( igclass, "input-group-$igsize" )
-    processhmblock( inner, join( igclass, " " ), tag, class; kwargs... )
-end  # inputgroup( inner; tag, igsize, class, kwargs... )
+    size ∈ [:sm, :lg] && push!( igclass, "input-group-$size" )
+    Tag( tag, inner, id=id, classes=vcat( igclass, classes ), class=class,
+        styles=styles, attrs=attrs; kwargs... )
+end  # InputGroup( inner; tag, id, size, classes, class, styles, attrs,
+     #   kwargs... )
 
-inputgroupprepend( inner=""; tag::AbstractString="div",
-    class::AbstractString="", kwargs... ) =
-    processhmblock( inner, "input-group-prepend", tag, class; kwargs... )
+makeBasicComponent( "input-group-prepend", "div" )
+makeBasicComponent( "input-group-append", "div" )
+makeBasicComponent( "input-group-text", "div" )
 
-inputgroupappend( inner=""; tag::AbstractString="div",
-    class::AbstractString="", kwargs... ) =
-    processhmblock( inner, "input-group-append", tag, class; kwargs... )
 
-inputgrouptext( inner=""; tag::AbstractString="div", class::AbstractString="",
-    kwargs... ) =
-    processhmblock( inner, "input-group-text", tag, class; kwargs... )
+for fn in fns
+    # Core.eval( @__MODULE__, """$(lowercase(fn)) = doc ∘ $fn""" |> Meta.parse )
+    Core.eval( @__MODULE__, """$(lowercase(fn))( x...; kwargs... ) = $fn( x...; kwargs... ) |> doc""" |> Meta.parse )
+end  # for fn in fns

@@ -1,7 +1,7 @@
 name = "WebMin"
 uuid = "970e17dd-e7cf-4d51-a1c9-6e25c8d5994c"
 authors = ["Johan Van Kerckhoven <johan.vankerckhoven@gmail.com>"]
-version = "0.2.3"
+version = "0.2.4"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"

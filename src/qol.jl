@@ -110,6 +110,23 @@ end  # changeInnerHTML!( msg, id, contents; append )
 
 """
 ```
+changeInnerHTML!( msg::Dict{String,Dict{String,Any}},
+    id::AbstractString,
+    contents::WebMin.Html.HtmlTag;
+    append::Bool=false )
+```
+This function adds an instruction to `msg` to change the contents of the HTML element with `id` to `contents`. If the flag `append` is set, the contents of the element get appended; if not, they are replaced.
+"""
+function changeInnerHTML!( msg::Dict{String,Dict{String,Any}},
+    id::AbstractString, contents::WebMin.Html.HtmlTag; append::Bool=false )
+    haskey( msg, id ) || (msg[id] = Dict{String,Any}() )
+    msg[id]["type"] = append ? 0 : 1
+    msg[id]["data"] = contents |> doc
+end  # changeInnerHTML!( msg, id, contents; append )
+
+
+"""
+```
 removeElement!( msg::Dict{String,Dict{String,Any}},
     id::AbstractString )
 ```
@@ -207,3 +224,12 @@ This function adds an instruction to `msg` to remove the class `class` from the 
 """
 removeElementClass!( msg::Dict{String,Dict{String,Any}}, id::AbstractString,
     class::AbstractString ) = setElementClass!( msg, id, class, false )
+
+
+function Base.tryparse( ::Type{IPAddr}, str::AbstractString )
+    try
+        parse( IPAddr, str )
+    catch
+        return
+    end
+end  # tryparse( ::Type{IPAddr}, str )
