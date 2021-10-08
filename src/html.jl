@@ -82,7 +82,8 @@ function makeprefix( htmltag::HtmlTag, tag::AbstractString )
         join( ["$key: $(styles[key])" for key in keys(styles)], "; " ), "\"" ) )
     attrs = htmltag.attrs
     isempty(attrs) ||
-        append!( prefix, ["$key=\"$(attrs[key])\"" for key in keys(attrs)] )
+        append!( prefix, [attrs[key] == "" ? "$key" :
+            "$key=\"$(attrs[key])\"" for key in keys(attrs)] )
     prefix
 end  # makeprefix( htmltag, tag )
 

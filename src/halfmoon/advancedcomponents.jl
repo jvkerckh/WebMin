@@ -101,16 +101,16 @@ CollapsePanel( inner=""; id="", isopen::Bool=false, classes::Vector{S}=String[],
         class=class, styles=styles, attrs=attrs, open=isopen ? "" : nothing;
         kwargs... )
 
-function CollapseHeader( inner=""; tag::AbstractString="div", id="",
-    showarrow::Bool=true, classes::Vector{S}=String[], class::AbstractString="",
+function CollapseHeader( inner=""; id="", showarrow::Bool=true,
+    classes::Vector{S}=String[], class::AbstractString="",
     styles::Dict{String, A1}=Dict{String, Any}(),
     attrs::Dict{String, A2}=Dict{String, Any}(),
     kwargs... ) where {S <: AbstractString, A1, A2}
     chclass = ["collapse-header"]
     showarrow || push!( chclass, "without-arrow" )
-    Tag( tag, inner, id=id, classes=vcat( chclass, classes ), class=class,
+    Tag( "summary", inner, id=id, classes=vcat( chclass, classes ), class=class,
         styles=styles, attrs=attrs; kwargs... )
-end  # CollapseHeader( inner; tag, id, showarrow, classes, class, styles, attrs,
+end  # CollapseHeader( inner; id, showarrow, classes, class, styles, attrs,
      #   kwargs... )
 
 makeBasicComponent( "collapse-content", "div" )
